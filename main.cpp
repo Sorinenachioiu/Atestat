@@ -158,7 +158,7 @@ functii functions[] =
     WriteToRed,
     WriteToGreen,
     WriteToBlue
-};//create the vector of pointers to functions 
+};
 
 /*<-------------- END OF WRITE TO FILE FUNCTIONS --------------> */
 
@@ -321,13 +321,4 @@ int main()
     // Calculeaza valorile din matricea corespunzatoare culorii albastru in functie de sirul s_bl
     Hashing(s_bl, 2);//2 - blue
 }
-/**
-* read_string(s);
-* resize_string(s);
-* hashing(s, 0);
-* s_gr = rev_string(s);
-* hashing(s_gr, 1);
-* s_blue = cut_half(s);
-* hashing(s, 2);
-**/
 /* <-------------- END OF MAIN FUNCTION --------------> */
