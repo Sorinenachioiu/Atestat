@@ -5,19 +5,27 @@ ofstream red_color("red.out");
 ofstream blue_color("blue.out");
 ofstream green_color("green.out");
 
+// definim dimensiunea matricei/imaginii finale
+const int MAX_ROWS = 64; 
 
-const int MAX_ROWS = 64;
-const int P = 666013;
-const int MOD = 1'000'000'007;
+// definim doua variabile numere prime,
+// care o sa fie utilizate in calcularea hash-urilor
+const int P = 666013; 
+const int MOD = 1'000'000'007; 
 
-typedef void *(*functii) (bool op, string s, int nr);//define a pointer to a function
+// definim un pointer spre o functie
+typedef void *(*functii) (bool op, string s, int nr);
 
-// <-------------- STRING OPERATIONS -------------->
+/* <-------------- STRING OPERATIONS --------------> */
+
+// functie care citeste un sir de caractere
 void ReadString(string &s)
 {
     getline(in, s);
 }
 
+// functie care redimensioneaza un string
+// in asa fel incat acesta sa aiba exact 16 caractere
 void ResizeString(string &s)
 {
     while((int)s.size() < 16)
@@ -27,6 +35,8 @@ void ResizeString(string &s)
     s.resize(16);
 }
 
+// functie care preia un sir de caractere
+// si ii inverseaza prima jumatate cu cea de a doua jumatate
 void CutHalf(string &s)
 {
     string t;
@@ -36,35 +46,49 @@ void CutHalf(string &s)
     s = t + s;
 }
 
+// functie care inverseaza un sir de caractere
 void RevString(string &s)
 {
     reverse(s.begin(), s.end());
 }
-//<-------------- END OF STRING OPERATIONS -------------->
 
-//<-------------- HASH STRUCT -------------->
+/* <-------------- END OF STRING OPERATIONS --------------> */
+
+/* <-------------- HASH STRUCT --------------> */
+
 struct Hash
 {
     vector <int> h;
     vector <int> pow_p;
 
+    // initializam un Hash in momentul in care il cream
     Hash(string s, string t, int row, int col)
     {
+        // parcurgem sirul de caractere s
         for(int poz_crt = 0; poz_crt <= (int)s.size(); poz_crt++)
         {
             int last = 0;
+            
+            // daca exista cel putin un element in h atunci  
+            // acesta va fi folosit in calculul h-ului urmator
             if(!h.empty())
                 last = h.back();
+
+            // hash-ul este calculat in functie de randul, coloana curenta,
+            // ultimul h, cele doua variabile numere prime si caracterele
+            // de pe pozitia curenta in s si t 
             h.push_back((1LL * last * P * row * col + s[poz_crt] * t[poz_crt])%MOD);
         }
 
         pow_p.resize((int)s.size());
         pow_p[0] = 1;
 
+        // initializam vectorul p cu valori in functie de cele doua variabile numere prime
         for(int i = 1; i <= (int)s.size(); i++)
             pow_p[i] = 1LL * pow_p[i-1] * P %MOD;
     }
 
+    // functie care returneaza Hash-ul
     string GetHash(int row, int col)
     {
         int temp = (h[(int)h.size() - col] - 1LL * h[row] * pow_p[(int)h.size() - col - row + 1]) % MOD;
@@ -79,10 +103,18 @@ struct Hash
         return ans;
     }
 };
-//<-------------- END OF HASH STRUCT -------------->
+
+/* <-------------- END OF HASH STRUCT --------------> */
 
 
-//<-------------- WRITE TO FILE FUNCTIONS -------------->
+/*<-------------- WRITE TO FILE FUNCTIONS --------------> */
+
+/**
+ * functie care scrie in fisierul corespunzator 
+ * culorii rosii din matricea finala
+ * op = 1 => o sa fie scris un numar
+ * op = 0 => o sa fie scris un sir de caractere
+ **/ 
 void *WriteToRed(bool op, string s, int nr)
 {
     if(op == 0)
@@ -91,6 +123,12 @@ void *WriteToRed(bool op, string s, int nr)
         red_color << nr << ", " ; 
 }
 
+/** 
+ * functie care scrie in fisierul corespunzator 
+ * culorii verde din matricea finala
+ * op = 1 => o sa fie scris un numar
+ * op = 0 => o sa fie scris un sir de caractere
+ **/
 void *WriteToGreen(bool op, string s, int nr)
 {
     if(op == 0)
@@ -99,24 +137,41 @@ void *WriteToGreen(bool op, string s, int nr)
         green_color << nr << ", " ; 
 }
 
+/**
+ * functie care scrie in fisierul corespunzator 
+ * culorii albastru din matricea finala
+ * op = 1 => o sa fie scris un numar
+ * op = 0 => o sa fie scris un sir de caractere
+ **/
 void *WriteToBlue(bool op, string s, int nr)
 {
     if(op == 0)
         blue_color << s;
     else
-        blue_color << nr << ", " ;
+        blue_color << nr << ", ";
 }
 
+// cream un vector de pointeri spre 
+// functiile de scris in fisiere
 functii functions[] =
 {
     WriteToRed,
     WriteToGreen,
     WriteToBlue
-};//create the vector of pointers to functions
-//<-------------- END OF WRITE TO FILE FUNCTIONS -------------->
+};//create the vector of pointers to functions 
+
+/*<-------------- END OF WRITE TO FILE FUNCTIONS --------------> */
 
 
-//<-------------- HASHING FUNCTION -------------->
+/* <-------------- HASHING FUNCTION --------------> */
+
+/** 
+ * declaram un operator "-" intre doua stringuri, 
+ * parametrii de intrare sunt doua stringuri prin referinta 
+ * primul string o sa contina numai caractere, 
+ * caractere >= 0 si <= 9 
+ * rezultatul operatiei o sa fie de tip intreg 
+**/
 int operator - (const string &a, const string &b)
 {
     int z = 0;
@@ -127,6 +182,12 @@ int operator - (const string &a, const string &b)
     return z;
 }
 
+/**
+ * functie care primeste ca parametrii de intrare un string si pozitia 
+ * curenta in care ne aflam in el 
+ * (stringul este format numai din numere intregi) 
+ * transforma cele 3 caractere de la pozitia curenta in intr-un numar intreg 
+ **/ 
 int FromSToInt(string s, int crt_poz)
 {
     string crt_s;
@@ -136,6 +197,12 @@ int FromSToInt(string s, int crt_poz)
     return ans;
 }
 
+/**
+ * functie care divizeaza hash-ul in grupe de cate 3 valori, 
+ * pe care le converteste in valori intregi, 
+ * folosite pentru a genera valori intre 0-255, 
+ * corespunzatoare unei culori
+ **/
 void WriteColors(string s, int color, int crt_row, int crt_col)
 {
     int to_color;
@@ -149,6 +216,9 @@ void WriteColors(string s, int color, int crt_row, int crt_col)
 
 }
 
+/**
+ * functie care genereaza un hash de 48 de caractere numerice,
+ **/
 string GenerateCurrentHash(string s, string initial_s, int crt_row, int crt_col)
 {
     string s2;
@@ -170,6 +240,10 @@ string GenerateCurrentHash(string s, string initial_s, int crt_row, int crt_col)
     return s;
 }
 
+/**
+ * functie care transforma in mod repetat sirul intr-un hash de 48 de caractere numerice,
+ * hash-ul fiind apoi folosit pentru a calcula culorile 
+ **/
 void HashGenerator(string s, int color)
 {
     string initial_s;
@@ -185,6 +259,10 @@ void HashGenerator(string s, int color)
     }
 }
 
+/**
+ * functie care scrie valorile generate pentru o anumita culoare  
+ * in fisier-ul corespunzator acesteia
+ **/
 void Hashing(string s, int color)
 {
     switch(color)
@@ -215,25 +293,34 @@ void Hashing(string s, int color)
 *           write_colour(h, col);
 **/
 
-//<-------------- END OF HASHING FUNCTION -------------->
+/* <-------------- END OF HASHING FUNCTION --------------> */
 
-//<-------------- MAIN FUNCTION -------------->
+/*<-------------- MAIN FUNCTION --------------> */
 int main()
 {
     string s;
+
+    // Citeste un sir de caractere
     ReadString(s);
+
+    // Daca sirul are sub 16 caractere atunci este redimensionat
     if((int)s.size() < 16)
         ResizeString(s);
     
+    // Calculeaza valorile din matricea corespunzatoare culorii rosu in functie de sirul s
     Hashing(s, 0);//0 - red
     
     string s_gr = s;
-    RevString(s_gr);
+    RevString(s_gr); 
+    // Calculeaza valorile din matricea corespunzatoare culorii verde in functie de sirul s_gr
     Hashing(s_gr, 1);//1 - green
     
+
     string s_bl = s; 
     CutHalf(s_bl); 
+    // Calculeaza valorile din matricea corespunzatoare culorii albastru in functie de sirul s_bl
     Hashing(s_bl, 2);//2 - blue
+}
 /**
 * read_string(s);
 * resize_string(s);
@@ -243,5 +330,4 @@ int main()
 * s_blue = cut_half(s);
 * hashing(s, 2);
 **/
-}
-//<-------------- END OF MAIN FUNCTION -------------->
+/* <-------------- END OF MAIN FUNCTION --------------> */
